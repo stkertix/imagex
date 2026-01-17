@@ -1,0 +1,210 @@
+#!/bin/bash
+
+# ImageX Deployment Script
+# This script builds the application for production and optionally deploys it
+
+set -e  # Exit on error
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration (edit these as needed)
+DEPLOY_SERVER=""
+DEPLOY_USER=""
+DEPLOY_PATH="/var/www/html/imagex"
+DEPLOY_METHOD="rsync"  # rsync or scp
+
+# Functions
+print_info() {
+    echo -e "${BLUE}ℹ${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+# Check if npm is installed
+check_dependencies() {
+    print_info "Checking dependencies..."
+    
+    if ! command -v npm &> /dev/null; then
+        print_error "npm is not installed. Please install Node.js and npm first."
+        exit 1
+    fi
+    
+    print_success "Dependencies check passed"
+}
+
+# Install dependencies if needed
+install_dependencies() {
+    if [ ! -d "node_modules" ]; then
+        print_info "Installing dependencies..."
+        npm install
+        print_success "Dependencies installed"
+    else
+        print_info "Dependencies already installed"
+    fi
+}
+
+# Build the application
+build_app() {
+    print_info "Building application for production..."
+    
+    # Clean previous build
+    if [ -d "dist" ]; then
+        print_info "Cleaning previous build..."
+        rm -rf dist
+    fi
+    
+    # Build
+    npm run build
+    
+    if [ -d "dist" ]; then
+        print_success "Build completed successfully!"
+        print_info "Build output: $(du -sh dist | cut -f1)"
+    else
+        print_error "Build failed - dist directory not found"
+        exit 1
+    fi
+}
+
+# Deploy to server
+deploy_to_server() {
+    if [ -z "$DEPLOY_SERVER" ] || [ -z "$DEPLOY_USER" ]; then
+        print_warning "Deployment skipped - server configuration not set"
+        print_info "To enable deployment, edit the deploy script and set:"
+        print_info "  DEPLOY_SERVER=your-server.com"
+        print_info "  DEPLOY_USER=your-username"
+        print_info "  DEPLOY_PATH=/path/to/deployment"
+        return
+    fi
+    
+    print_info "Deploying to server..."
+    
+    if [ "$DEPLOY_METHOD" = "rsync" ]; then
+        if ! command -v rsync &> /dev/null; then
+            print_error "rsync is not installed"
+            exit 1
+        fi
+        
+        print_info "Using rsync to deploy..."
+        rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            dist/ \
+            ${DEPLOY_USER}@${DEPLOY_SERVER}:${DEPLOY_PATH}/
+        
+        print_success "Deployment completed via rsync"
+        
+    elif [ "$DEPLOY_METHOD" = "scp" ]; then
+        if ! command -v scp &> /dev/null; then
+            print_error "scp is not installed"
+            exit 1
+        fi
+        
+        print_info "Using scp to deploy..."
+        scp -r dist/* ${DEPLOY_USER}@${DEPLOY_SERVER}:${DEPLOY_PATH}/
+        
+        print_success "Deployment completed via scp"
+    else
+        print_error "Unknown deployment method: $DEPLOY_METHOD"
+        exit 1
+    fi
+}
+
+# Main execution
+main() {
+    echo ""
+    echo "=========================================="
+    echo "  ImageX Deployment Script"
+    echo "=========================================="
+    echo ""
+    
+    # Parse arguments
+    SKIP_BUILD=false
+    SKIP_DEPLOY=false
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --skip-build)
+                SKIP_BUILD=true
+                shift
+                ;;
+            --skip-deploy)
+                SKIP_DEPLOY=true
+                shift
+                ;;
+            --build-only)
+                SKIP_DEPLOY=true
+                shift
+                ;;
+            --deploy-only)
+                SKIP_BUILD=true
+                shift
+                ;;
+            -h|--help)
+                echo "Usage: ./deploy [options]"
+                echo ""
+                echo "Options:"
+                echo "  --skip-build      Skip building the application"
+                echo "  --skip-deploy     Skip deployment to server"
+                echo "  --build-only      Only build, don't deploy"
+                echo "  --deploy-only     Only deploy, don't build (requires existing dist/)"
+                echo "  -h, --help        Show this help message"
+                echo ""
+                echo "To configure deployment, edit the script and set:"
+                echo "  DEPLOY_SERVER, DEPLOY_USER, DEPLOY_PATH, DEPLOY_METHOD"
+                exit 0
+                ;;
+            *)
+                print_error "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+    
+    # Run steps
+    check_dependencies
+    
+    if [ "$SKIP_BUILD" = false ]; then
+        install_dependencies
+        build_app
+    else
+        if [ ! -d "dist" ]; then
+            print_error "dist directory not found. Run build first or remove --skip-build flag."
+            exit 1
+        fi
+        print_info "Skipping build (using existing dist/)"
+    fi
+    
+    if [ "$SKIP_DEPLOY" = false ]; then
+        deploy_to_server
+    else
+        print_info "Skipping deployment"
+    fi
+    
+    echo ""
+    echo "=========================================="
+    print_success "All done! 🎉"
+    echo "=========================================="
+    echo ""
+    print_info "Build output is in: ./dist/"
+    print_info "Application will be available at: https://domain.com/imagex/"
+    echo ""
+}
+
+# Run main function
+main "$@"
