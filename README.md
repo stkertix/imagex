@@ -32,10 +32,19 @@ The application will run on `http://localhost:3000`
 npm run build
 ```
 
+Build output akan berada di folder `dist/` dan siap untuk di-deploy.
+
+**Catatan:** Aplikasi dikonfigurasi untuk berjalan di subpath `/imagex/`. Pastikan server web dikonfigurasi untuk serve aplikasi di `https://domain.com/imagex/`.
+
 ## Preview Build
 
 ```bash
 npm run preview
+```
+
+Untuk preview dengan base path yang benar:
+```bash
+npm run preview -- --base /imagex/
 ```
 
 ## Technology Used
