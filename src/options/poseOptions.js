@@ -5,6 +5,8 @@ export const poseOptions = [
   { code: "arms-up", title: "Arms Up", value: "standing with arms raised up", icon: "fi-rr-arms-up", isSpicy: false },
   { code: "crouching", title: "Crouching", value: "crouching down", icon: "fi-rr-squat", isSpicy: false },
   { code: "dancing", title: "Dancing", value: "dancing pose, dynamic", icon: "fi-rr-music", isSpicy: false },
+  { code: "face-up", title: "Face Up", value: "facing up to the viewer", icon: "fi-rr-user", isSpicy: false },
+  { code: "hand-between-legs", title: "Hand Between Legs", value: "both hands between leg", icon: "fi-rr-exclamation-triangle", isSpicy: false },
   { code: "hands-on-hips", title: "Hands on Hips", value: "standing with hands on hips", icon: "fi-rr-arms-crossed", isSpicy: false },
   { code: "jumping", title: "Jumping", value: "jumping, dynamic action", icon: "fi-rr-jumping", isSpicy: false },
   { code: "kneeling", title: "Kneeling", value: "kneeling on the ground", icon: "fi-rr-squat", isSpicy: false },

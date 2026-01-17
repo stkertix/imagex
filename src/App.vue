@@ -28,28 +28,67 @@
                 <!-- ------------------------------------------------------- -->
                 <!-- Prompt Preset -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-lightbulb" class="mr-2"></v-icon>
-                  <span class="text-h6">Presets</span>
+                <div class="d-flex align-center justify-space-between mb-3">
+                  <div class="d-flex align-center">
+                    <v-icon icon="mdi-lightbulb" class="mr-2"></v-icon>
+                    <span class="text-h6">Presets</span>
+                  </div>
+                  <v-btn
+                    color="success"
+                    size="small"
+                    prepend-icon="mdi-content-save"
+                    @click="openSavePresetDialog"
+                  >
+                    Save Preset
+                  </v-btn>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="preset in presetOptions"
+                  <div
+                    v-for="preset in allPresets"
                     :key="preset.id"
-                    :color="
-                      selectedPreset === preset.id ? 'primary' : 'default'
-                    "
-                    :variant="
-                      selectedPreset === preset.id ? 'flat' : 'outlined'
-                    "
-                    @click="applyPreset(preset)"
-                    class="cursor-pointer"
-                    size="small"
+                    class="d-inline-flex align-center"
                   >
-                    <v-icon v-if="preset.icon" :icon="preset.icon" class="mr-1"></v-icon>
-                    {{ preset.name }}
-                  </v-chip>
+                    <v-chip
+                      :color="
+                        selectedPreset === preset.id ? 'primary' : 'default'
+                      "
+                      :variant="
+                        selectedPreset === preset.id ? 'flat' : 'outlined'
+                      "
+                      @click="applyPreset(preset)"
+                      class="cursor-pointer"
+                      size="small"
+                    >
+                      <v-icon v-if="preset.icon" :icon="preset.icon" class="mr-1"></v-icon>
+                      {{ preset.name }}
+                    </v-chip>
+                    <v-menu v-if="preset.isCustom" location="bottom">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          icon="mdi-dots-vertical"
+                          size="x-small"
+                          variant="text"
+                          v-bind="props"
+                          @click.stop
+                          class="ml-1"
+                          density="compact"
+                        ></v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          prepend-icon="mdi-pencil"
+                          title="Edit"
+                          @click="openEditPresetDialog(preset)"
+                        ></v-list-item>
+                        <v-list-item
+                          prepend-icon="mdi-delete"
+                          title="Delete"
+                          @click="confirmDeletePreset(preset)"
+                        ></v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </div>
                 </div>
               </v-card-text>
 
@@ -194,6 +233,107 @@
         </v-btn>
       </template>
     </v-snackbar>
+
+    <!-- Save Preset Dialog -->
+    <v-dialog v-model="showSaveDialog" max-width="500">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Save Preset</span>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newPresetName"
+            label="Preset Name"
+            variant="outlined"
+            autofocus
+            @keyup.enter="savePreset"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="closeSaveDialog"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="savePreset"
+            :disabled="!newPresetName || newPresetName.trim() === ''"
+          >
+            Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Edit Preset Dialog -->
+    <v-dialog v-model="showEditDialog" max-width="500">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Edit Preset</span>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="editingPresetName"
+            label="Preset Name"
+            variant="outlined"
+            autofocus
+            @keyup.enter="updatePreset"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="closeEditDialog"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="updatePreset"
+            :disabled="!editingPresetName || editingPresetName.trim() === ''"
+          >
+            Update
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="showDeleteDialog" max-width="500">
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">Delete Preset</span>
+        </v-card-title>
+        <v-card-text>
+          Are you sure you want to delete preset "{{ deletingPreset?.name }}"? This action cannot be undone.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="closeDeleteDialog"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            @click="deletePreset"
+          >
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -254,6 +394,17 @@ export default {
       bodyShapeOptions,
       facialExpressionOptions,
       activeTab: "pose",
+      // Custom presets management
+      customPresets: [],
+      allPresets: [],
+      showSaveDialog: false,
+      showEditDialog: false,
+      showDeleteDialog: false,
+      newPresetName: "",
+      editingPreset: null,
+      editingPresetName: "",
+      deletingPreset: null,
+      nextCustomPresetId: 1000, // Start from 1000 to avoid conflicts with default presets
     };
   },
 
@@ -647,6 +798,221 @@ export default {
       this.cameraShot = "front";
       this.background = "studio";
     },
+    // Helper: Convert value to code
+    findCodeByValue(optionsArray, value) {
+      if (!value) return null;
+      const option = optionsArray.find((opt) => opt.value === value);
+      return option ? option.code : value; // Fallback to value if not found
+    },
+    // Helper: Convert array of values to codes
+    findCodesByValues(optionsArray, values) {
+      if (!values || !Array.isArray(values)) return [];
+      return values
+        .map((value) => {
+          const option = optionsArray.find((opt) => opt.value === value);
+          return option ? option.code : value; // Fallback to value if not found
+        })
+        .filter((v) => v);
+    },
+    // Save current configuration as preset
+    openSavePresetDialog() {
+      this.newPresetName = "";
+      this.showSaveDialog = true;
+    },
+    closeSaveDialog() {
+      this.showSaveDialog = false;
+      this.newPresetName = "";
+    },
+    savePreset() {
+      if (!this.newPresetName || this.newPresetName.trim() === "") {
+        return;
+      }
+
+      // Check if name already exists
+      const nameExists = this.allPresets.some(
+        (p) => p.name.toLowerCase() === this.newPresetName.trim().toLowerCase()
+      );
+      if (nameExists) {
+        this.snackbarText = "Preset name already exists!";
+        this.showSnackbar = true;
+        return;
+      }
+
+      // Convert current values to codes
+      const poseCodes = this.findCodesByValues(this.poseOptions, this.pose);
+      const facialExpressionCodes = this.findCodesByValues(
+        this.facialExpressionOptions,
+        this.facialExpression
+      );
+      const bodyShapeCodes = this.findCodesByValues(
+        this.bodyShapeOptions,
+        this.bodyShape
+      );
+      const accessoriesCodes = this.findCodesByValues(
+        this.accessoriesOptions,
+        this.accessories
+      );
+      const topClothesCode = this.findCodeByValue(
+        this.clothesTopOptions,
+        this.topClothes
+      );
+      const bottomClothesCode = this.findCodeByValue(
+        this.clothesBottomOptions,
+        this.bottomClothes
+      );
+      const cameraShotCode = this.findCodeByValue(
+        this.cameraShotOptions,
+        this.cameraShot
+      );
+      const backgroundCode = this.findCodeByValue(
+        this.backgroundOptions,
+        this.background
+      );
+
+      const newPreset = {
+        id: this.nextCustomPresetId++,
+        name: this.newPresetName.trim(),
+        icon: "mdi-bookmark",
+        isCustom: true,
+        pose: poseCodes,
+        facialExpression: facialExpressionCodes,
+        topClothes: topClothesCode || "",
+        topClothesColor: this.topClothesColor || "",
+        bottomClothes: bottomClothesCode || "",
+        bottomClothesColor: this.bottomClothesColor || "",
+        bodyShape: bodyShapeCodes,
+        cameraShot: cameraShotCode || "",
+        background: backgroundCode || "",
+        accessories: accessoriesCodes,
+      };
+
+      this.customPresets.push(newPreset);
+      this.updateAllPresets();
+      this.saveCustomPresetsToLocalStorage();
+      this.closeSaveDialog();
+      this.snackbarText = "Preset saved successfully!";
+      this.showSnackbar = true;
+    },
+    // Edit preset
+    openEditPresetDialog(preset) {
+      if (!preset.isCustom) {
+        this.snackbarText = "Default presets cannot be edited!";
+        this.showSnackbar = true;
+        return;
+      }
+      this.editingPreset = preset;
+      this.editingPresetName = preset.name;
+      this.showEditDialog = true;
+    },
+    closeEditDialog() {
+      this.showEditDialog = false;
+      this.editingPreset = null;
+      this.editingPresetName = "";
+    },
+    updatePreset() {
+      if (!this.editingPreset || !this.editingPresetName || this.editingPresetName.trim() === "") {
+        return;
+      }
+
+      // Check if name already exists (excluding current preset)
+      const nameExists = this.allPresets.some(
+        (p) =>
+          p.id !== this.editingPreset.id &&
+          p.name.toLowerCase() === this.editingPresetName.trim().toLowerCase()
+      );
+      if (nameExists) {
+        this.snackbarText = "Preset name already exists!";
+        this.showSnackbar = true;
+        return;
+      }
+
+      // Update preset name
+      const presetIndex = this.customPresets.findIndex(
+        (p) => p.id === this.editingPreset.id
+      );
+      if (presetIndex !== -1) {
+        this.customPresets[presetIndex].name = this.editingPresetName.trim();
+        this.updateAllPresets();
+        this.saveCustomPresetsToLocalStorage();
+        this.closeEditDialog();
+        this.snackbarText = "Preset updated successfully!";
+        this.showSnackbar = true;
+      }
+    },
+    // Delete preset
+    confirmDeletePreset(preset) {
+      if (!preset.isCustom) {
+        this.snackbarText = "Default presets cannot be deleted!";
+        this.showSnackbar = true;
+        return;
+      }
+      this.deletingPreset = preset;
+      this.showDeleteDialog = true;
+    },
+    closeDeleteDialog() {
+      this.showDeleteDialog = false;
+      this.deletingPreset = null;
+    },
+    deletePreset() {
+      if (!this.deletingPreset) return;
+
+      const presetIndex = this.customPresets.findIndex(
+        (p) => p.id === this.deletingPreset.id
+      );
+      if (presetIndex !== -1) {
+        this.customPresets.splice(presetIndex, 1);
+        this.updateAllPresets();
+        this.saveCustomPresetsToLocalStorage();
+        
+        // Clear selection if deleted preset was selected
+        if (this.selectedPreset === this.deletingPreset.id) {
+          this.selectedPreset = null;
+        }
+        
+        this.closeDeleteDialog();
+        this.snackbarText = "Preset deleted successfully!";
+        this.showSnackbar = true;
+      }
+    },
+    // Update all presets list (default + custom)
+    updateAllPresets() {
+      this.allPresets = [...this.presetOptions, ...this.customPresets];
+    },
+    // Save custom presets to localStorage
+    saveCustomPresetsToLocalStorage() {
+      try {
+        const dataToSave = {
+          presets: this.customPresets,
+          nextId: this.nextCustomPresetId,
+        };
+        localStorage.setItem("imagex_custom_presets", JSON.stringify(dataToSave));
+      } catch (error) {
+        console.error("Error saving presets to localStorage:", error);
+        this.snackbarText = "Error saving preset to storage";
+        this.showSnackbar = true;
+      }
+    },
+    // Load custom presets from localStorage
+    loadCustomPresetsFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem("imagex_custom_presets");
+        if (saved) {
+          const data = JSON.parse(saved);
+          this.customPresets = data.presets || [];
+          this.nextCustomPresetId = data.nextId || 1000;
+          this.updateAllPresets();
+        } else {
+          this.customPresets = [];
+          this.nextCustomPresetId = 1000;
+          this.updateAllPresets();
+        }
+      } catch (error) {
+        console.error("Error loading presets from localStorage:", error);
+        this.customPresets = [];
+        this.nextCustomPresetId = 1000;
+        this.updateAllPresets();
+      }
+    },
   },
   watch: {
     pose: {
@@ -693,6 +1059,9 @@ export default {
     },
   },
   created() {
+    // Load custom presets from localStorage
+    this.loadCustomPresetsFromLocalStorage();
+    
     // Set default values (index 0) untuk masing-masing pilihan
     if (this.poseOptions.length > 0) {
       this.pose = [this.poseOptions[0].value];
@@ -729,5 +1098,13 @@ export default {
 
 .gap-2 {
   gap: 8px;
+}
+
+.preset-chip {
+  position: relative;
+}
+
+.preset-chip :deep(.v-chip__close) {
+  margin-left: 4px;
 }
 </style>
