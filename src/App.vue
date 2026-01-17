@@ -3,11 +3,15 @@
     <v-app-bar color="primary" dark elevation="4">
       <v-app-bar-title class="d-flex align-center">
         <v-icon icon="mdi-text-box-multiple" class="mr-2"></v-icon>
-        Prompt Generator
+        ImageX
       </v-app-bar-title>
     </v-app-bar>
 
     <v-main>
+
+
+      <!-- ----------------------------------------------------------------- -->
+
       <v-container class="pa-6" style="max-width: 1200px">
         <v-row>
           <!-- ------------------------------------------------------------- -->
@@ -17,7 +21,7 @@
             <v-card elevation="2" class="h-100">
               <v-card-title class="d-flex align-center bg-primary text-white">
                 <v-icon icon="mdi-cog" class="mr-2"></v-icon>
-                Konfigurasi Prompt
+                Prompt Configurator
               </v-card-title>
 
               <v-card-text class="pa-4">
@@ -26,7 +30,7 @@
 
                 <div class="d-flex align-center mb-3">
                   <v-icon icon="mdi-lightbulb" class="mr-2"></v-icon>
-                  <span class="text-h6">Preset</span>
+                  <span class="text-h6">Presets</span>
                 </div>
 
                 <div class="d-flex flex-wrap gap-2 mb-4">
@@ -55,346 +59,72 @@
                 <!-- ------------------------------------------------------- -->
                 <!-- Pose -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-human-greeting" class="mr-2"></v-icon>
-                  <span class="text-h6">Pose</span>
-                </div>
-
-                <v-select
-                  v-if="false"
-                  v-model="pose"
-                  :items="poseOptions"
-                  label="Pilih Pose"
-                  variant="outlined"
-                  density="comfortable"
-                  multiple
-                  chips
-                  clearable
-                  class="mb-3"
-                ></v-select>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="option in poseOptions"
-                    :key="option.value"
-                    :color="pose.includes(option.value) ? 'primary' : 'default'"
-                    :variant="pose.includes(option.value) ? 'flat' : 'outlined'"
-                    @click="togglePose(option.value)"
-                    class="cursor-pointer"
-                    size="small"
-                  >
-                    {{ option.title }}
-                  </v-chip>
-                </div>
+                <PoseView v-model="pose" />
 
                 <v-divider class="my-4"></v-divider>
 
                 <!-- ------------------------------------------------------- -->
                 <!-- Facial Expression -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-emoticon-happy" class="mr-2"></v-icon>
-                  <span class="text-h6">Facial Expression</span>
-                </div>
+                <!-- ------------------------------------------------------- -->
+                <!-- Facial Expression -->
 
-                <v-select
-                  v-if="false"
-                  v-model="facialExpression"
-                  :items="facialExpressionOptions"
-                  label="Pilih Facial Expression"
-                  variant="outlined"
-                  density="comfortable"
-                  multiple
-                  chips
-                  clearable
-                  class="mb-3"
-                ></v-select>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="option in facialExpressionOptions"
-                    :key="option.value"
-                    :color="
-                      facialExpression.includes(option.value) ? 'primary' : 'default'
-                    "
-                    :variant="
-                      facialExpression.includes(option.value) ? 'flat' : 'outlined'
-                    "
-                    @click="toggleFacialExpression(option.value)"
-                    class="cursor-pointer"
-                    size="small"
-                  >
-                    {{ option.title }}
-                  </v-chip>
-                </div>
+                <FacialExpressionView v-model="facialExpression" />
 
                 <v-divider class="my-4"></v-divider>
 
                 <!-- ------------------------------------------------------- -->
                 <!-- Clothes -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-tshirt-crew" class="mr-2"></v-icon>
-                  <span class="text-h6">Clothes</span>
-                </div>
+                <!-- ------------------------------------------------------- -->
+                <!-- Clothes -->
 
-                <!-- Atasan -->
-                <div class="mb-3">
-                  <div class="d-flex align-center mb-2">
-                    <span>Top Clothes</span>
-                  </div>
-
-                  <v-select
-                    v-if="false"
-                    v-model="topClothes"
-                    :items="clothesTopOptions"
-                    label="Atasan"
-                    variant="outlined"
-                    density="comfortable"
-                    clearable
-                    class="mb-2"
-                  ></v-select>
-
-                  <div class="d-flex flex-wrap gap-2 mb-2">
-                    <v-chip
-                      v-for="option in clothesTopOptions"
-                      :key="option.value"
-                      :color="
-                        topClothes === option.value ? 'primary' : 'default'
-                      "
-                      :variant="
-                        topClothes === option.value ? 'flat' : 'outlined'
-                      "
-                      @click="toggleTopClothes(option.value)"
-                      class="cursor-pointer"
-                      size="small"
-                    >
-                      {{ option.title }}
-                    </v-chip>
-                  </div>
-
-                  <!-- Top Clothes Color -->
-                  <div class="d-flex align-center mb-2">
-                    <span class="text-caption">Top Clothes Color:</span>
-                  </div>
-                  <div class="d-flex flex-wrap gap-2">
-                    <v-chip
-                      v-for="color in colorOptions"
-                      :key="color.value"
-                      :color="color.value"
-                      variant="elevated"
-                      @click="toggleTopClothesColor(color.value)"
-                      class="cursor-pointer"
-                      size="small"
-                    >
-                      {{ topClothesColor === color.value ? color.title : "" }}
-                    </v-chip>
-                  </div>
-                </div>
-
-                <!-- Bottom Clothes -->
-                <div class="mb-4">
-                  <div class="d-flex align-center mb-2">
-                    <span>Bottom Clothes</span>
-                  </div>
-
-                  <v-select
-                    v-if="false"
-                    v-model="bottomClothes"
-                    :items="clothesBottomOptions"
-                    label="Bottom Clothes"
-                    variant="outlined"
-                    density="comfortable"
-                    clearable
-                    class="mb-2"
-                  ></v-select>
-
-                  <div class="d-flex flex-wrap gap-2 mb-2">
-                    <v-chip
-                      v-for="option in clothesBottomOptions"
-                      :key="option.value"
-                      :color="
-                        bottomClothes === option.value ? 'primary' : 'default'
-                      "
-                      :variant="
-                        bottomClothes === option.value ? 'flat' : 'outlined'
-                      "
-                      @click="toggleBottomClothes(option.value)"
-                      class="cursor-pointer"
-                      size="small"
-                    >
-                      {{ option.title }}
-                    </v-chip>
-                  </div>
-
-                  <!-- Bottom Clothes Color -->
-                  <div class="d-flex align-center mb-2">
-                    <span class="text-caption">Bottom Clothes Color:</span>
-                  </div>
-                  <div class="d-flex flex-wrap gap-2">
-                    <v-chip
-                      v-for="color in colorOptions"
-                      :key="color.value"
-                      :color="color.value"
-                      variant="elevated"
-                      @click="toggleBottomClothesColor(color.value)"
-                      class="cursor-pointer"
-                      size="small"
-                    >
-                      {{
-                        bottomClothesColor === color.value ? color.title : ""
-                      }}
-                    </v-chip>
-                  </div>
-                </div>
+                <ClothesView
+                  v-model:top-clothes="topClothes"
+                  v-model:top-clothes-color="topClothesColor"
+                  v-model:bottom-clothes="bottomClothes"
+                  v-model:bottom-clothes-color="bottomClothesColor"
+                />
 
                 <v-divider class="my-4"></v-divider>
 
                 <!-- ------------------------------------------------------- -->
                 <!-- Body Shape -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-human" class="mr-2"></v-icon>
-                  <span class="text-h6">Body Shape</span>
-                </div>
+                <!-- ------------------------------------------------------- -->
+                <!-- Body Shape -->
 
-                <v-select
-                  v-if="false"
-                  v-model="bodyShape"
-                  :items="bodyShapeOptions"
-                  label="Pilih Body Shape"
-                  variant="outlined"
-                  density="comfortable"
-                  multiple
-                  chips
-                  clearable
-                  class="mb-3"
-                ></v-select>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="option in bodyShapeOptions"
-                    :key="option.value"
-                    :color="bodyShape.includes(option.value) ? 'primary' : 'default'"
-                    :variant="bodyShape.includes(option.value) ? 'flat' : 'outlined'"
-                    @click="toggleBodyShape(option.value)"
-                    class="cursor-pointer"
-                    size="small"
-                  >
-                    {{ option.title }}
-                  </v-chip>
-                </div>
+                <BodyShapeView v-model="bodyShape" />
 
                 <v-divider class="my-4"></v-divider>
 
                 <!-- ------------------------------------------------------- -->
                 <!-- Camera Shot -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-camera" class="mr-2"></v-icon>
-                  <span class="text-h6">Camera Shot</span>
-                </div>
+                <!-- ------------------------------------------------------- -->
+                <!-- Camera Shot -->
 
-                <v-select
-                  v-if="false"
-                  v-model="cameraShot"
-                  :items="cameraShotOptions"
-                  label="Pilih Camera Shot"
-                  variant="outlined"
-                  density="comfortable"
-                  clearable
-                  class="mb-3"
-                ></v-select>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="option in cameraShotOptions"
-                    :key="option.value"
-                    :color="cameraShot === option.value ? 'primary' : 'default'"
-                    :variant="cameraShot === option.value ? 'flat' : 'outlined'"
-                    @click="toggleCameraShot(option.value)"
-                    class="cursor-pointer"
-                    size="small"
-                  >
-                    {{ option.title }}
-                  </v-chip>
-                </div>
+                <CameraShotView v-model="cameraShot" />
 
                 <v-divider class="my-4"></v-divider>
 
                 <!-- ------------------------------------------------------- -->
                 <!-- Background -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-image" class="mr-2"></v-icon>
-                  <span class="text-h6">Background</span>
-                </div>
+                <!-- ------------------------------------------------------- -->
+                <!-- Background -->
 
-                <v-select
-                  v-if="false"
-                  v-model="background"
-                  :items="backgroundOptions"
-                  label="Pilih Background"
-                  variant="outlined"
-                  density="comfortable"
-                  clearable
-                  class="mb-3"
-                ></v-select>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="option in backgroundOptions"
-                    :key="option.value"
-                    :color="background === option.value ? 'primary' : 'default'"
-                    :variant="background === option.value ? 'flat' : 'outlined'"
-                    @click="toggleBackground(option.value)"
-                    class="cursor-pointer"
-                    size="small"
-                  >
-                    {{ option.title }}
-                  </v-chip>
-                </div>
+                <BackgroundView v-model="background" />
 
                 <v-divider class="my-4"></v-divider>
 
                 <!-- ------------------------------------------------------- -->
                 <!-- Accessories -->
 
-                <div class="d-flex align-center mb-3">
-                  <v-icon icon="mdi-diamond-stone" class="mr-2"></v-icon>
-                  <span class="text-h6">Accessories</span>
-                </div>
+                <!-- ------------------------------------------------------- -->
+                <!-- Accessories -->
 
-                <v-select
-                  v-if="false"
-                  v-model="accessories"
-                  :items="accessoriesOptions"
-                  label="Pilih Accessories"
-                  variant="outlined"
-                  density="comfortable"
-                  multiple
-                  chips
-                  clearable
-                  class="mb-3"
-                ></v-select>
-
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <v-chip
-                    v-for="option in accessoriesOptions"
-                    :key="option.value"
-                    :color="
-                      accessories.includes(option.value) ? 'primary' : 'default'
-                    "
-                    :variant="
-                      accessories.includes(option.value) ? 'flat' : 'outlined'
-                    "
-                    @click="toggleAccessories(option.value)"
-                    class="cursor-pointer"
-                    size="small"
-                  >
-                    {{ option.title }}
-                  </v-chip>
-                </div>
+                <AccessoriesView v-model="accessories" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -443,7 +173,7 @@
     </v-main>
 
     <v-footer app color="primary" dark class="justify-center">
-      <span>Prompt Generator - Buat prompt kreatif dengan mudah</span>
+      <span>ImageX - Image transformation prompts generator</span>
     </v-footer>
 
     <!-- Snackbar for notifications -->
@@ -478,9 +208,25 @@ import { accessoriesOptions } from "./options/accessoriesOptions.js";
 import { presetOptions } from "./options/presetOptions.js";
 import { bodyShapeOptions } from "./options/bodyShapeOptions.js";
 import { facialExpressionOptions } from "./options/facialExpressionOptions.js";
+import PoseView from "./components/PoseView.vue";
+import FacialExpressionView from "./components/FacialExpressionView.vue";
+import ClothesView from "./components/ClothesView.vue";
+import BodyShapeView from "./components/BodyShapeView.vue";
+import CameraShotView from "./components/CameraShotView.vue";
+import BackgroundView from "./components/BackgroundView.vue";
+import AccessoriesView from "./components/AccessoriesView.vue";
 
 export default {
   name: "App",
+  components: {
+    PoseView,
+    FacialExpressionView,
+    ClothesView,
+    BodyShapeView,
+    CameraShotView,
+    BackgroundView,
+    AccessoriesView,
+  },
   data() {
     return {
       prompt: "",
@@ -507,6 +253,7 @@ export default {
       presetOptions,
       bodyShapeOptions,
       facialExpressionOptions,
+      activeTab: "pose",
     };
   },
 
@@ -520,6 +267,23 @@ export default {
         this.pose.splice(index, 1);
       } else {
         this.pose.push(value);
+      }
+    },
+    handlePoseSelected(value) {
+      if (!this.pose) {
+        this.pose = [];
+      }
+      if (!this.pose.includes(value)) {
+        this.pose.push(value);
+      }
+    },
+    handlePoseDeselected(value) {
+      if (!this.pose) {
+        this.pose = [];
+      }
+      const index = this.pose.indexOf(value);
+      if (index > -1) {
+        this.pose.splice(index, 1);
       }
     },
     toggleAccessories(value) {

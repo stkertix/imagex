@@ -1,32 +1,32 @@
 # Vue.js Application
 
-Aplikasi Vue.js modern yang dibuat dengan Vite, Vue 3 Composition API, dan Vuetify 3.
+A modern Vue.js app built with Vite, Vue 3 Composition API, and Vuetify 3.
 
-## Fitur
+## Features
 
-- ⚡️ Vite untuk build tool yang cepat
-- 🎨 Vuetify 3 untuk Material Design components
-- 📱 Mobile-friendly dan responsif
-- ✨ Counter dengan increment/decrement
-- ✅ Todo List dengan fitur add, toggle, dan remove
-- 📊 Statistik todos
+- ⚡️ Vite for fast build tools
+- 🎨 Vuetify 3 for Material Design components
+- 📱 Mobile-friendly and responsive
+- ✨ Counter with increment/decrement
+- ✅ Todo List with add, toggle, and remove features
+- 📊 Todo statistics
 - 🎯 Material Design Icons (MDI)
 
-## Instalasi
+## Installation
 
 ```bash
 npm install
 ```
 
-## Menjalankan Aplikasi
+## Running the Application
 
 ```bash
 npm run dev
 ```
 
-Aplikasi akan berjalan di `http://localhost:3000`
+The application will run on `http://localhost:3000`
 
-## Build untuk Production
+## Build for Production
 
 ```bash
 npm run build
@@ -38,22 +38,22 @@ npm run build
 npm run preview
 ```
 
-## Teknologi yang Digunakan
+## Technology Used
 
 - Vue 3 (Composition API)
 - Vite
 - Vuetify 3 (Material Design Framework)
 - Material Design Icons (MDI)
 
-## Struktur Project
+## Project Structure
 
 ```
 prompt/
 ├── src/
-│   ├── App.vue          # Komponen utama
-│   ├── main.js          # Entry point
-│   └── style.css        # Global styles
-├── index.html           # HTML template
-├── vite.config.js       # Konfigurasi Vite
-└── package.json         # Dependencies
+│ ├── App.vue # Main component
+│ ├── main.js # Entry point
+│ └── style.css # Global styles
+├── index.html # HTML template
+├── vite.config.js # Vite configuration
+└── package.json # Dependencies
 ```
