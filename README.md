@@ -41,10 +41,7 @@ Build output akan berada di folder `dist/` dan siap untuk di-deploy.
 Script `deploy` menyediakan cara mudah untuk build dan deploy aplikasi:
 
 ```bash
-# Build saja (default)
-./deploy
-
-# Build dan deploy ke server (jika dikonfigurasi)
+# Build dan deploy (default)
 ./deploy
 
 # Hanya build, skip deployment
@@ -53,20 +50,30 @@ Script `deploy` menyediakan cara mudah untuk build dan deploy aplikasi:
 # Hanya deploy (menggunakan build yang sudah ada)
 ./deploy --deploy-only
 
+# Deploy tanpa sudo (jika sudah punya permission)
+./deploy --no-sudo
+
 # Lihat bantuan
 ./deploy --help
 ```
 
+**Deployment Steps:**
+
+Script akan melakukan langkah-langkah berikut:
+1. Build production aplikasi
+2. Hapus directory `/var/www/html/imagex` (jika ada)
+3. Copy hasil build dari `dist/` ke `/var/www/html/imagex`
+
 **Konfigurasi Deployment:**
 
-Edit file `deploy` dan set variabel berikut untuk enable auto-deployment:
+Edit file `deploy` untuk mengubah path deployment:
 
 ```bash
-DEPLOY_SERVER="your-server.com"
-DEPLOY_USER="your-username"
-DEPLOY_PATH="/var/www/html/imagex"
-DEPLOY_METHOD="rsync"  # atau "scp"
+DEPLOY_PATH="/var/www/html/imagex"  # Path deployment
+USE_SUDO=true  # Set false jika tidak perlu sudo
 ```
+
+**Catatan:** Script akan menggunakan `sudo` untuk menulis ke `/var/www/html/`. Pastikan user memiliki permission sudo atau set `USE_SUDO=false` jika sudah punya write permission.
 
 **Catatan:** Aplikasi dikonfigurasi untuk berjalan di subpath `/imagex/`. Pastikan server web dikonfigurasi untuk serve aplikasi di `https://domain.com/imagex/`.
 
