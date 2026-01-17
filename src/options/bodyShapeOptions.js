@@ -1,0 +1,15 @@
+export const bodyShapeOptions = [
+  { code: "apple-shaped", title: "Apple Shaped", value: "apple-shaped body" },
+  { code: "athletic", title: "Athletic", value: "athletic body" },
+  { code: "average", title: "Average", value: "average body" },
+  { code: "curvy", title: "Curvy", value: "curvy body" },
+  { code: "hourglass", title: "Hourglass", value: "hourglass figure" },
+  { code: "muscular", title: "Muscular", value: "muscular body" },
+  { code: "pear-shaped", title: "Pear Shaped", value: "pear-shaped body" },
+  { code: "petite", title: "Petite", value: "petite body" },
+  { code: "plus-size", title: "Plus Size", value: "plus-size body" },
+  { code: "rectangle", title: "Rectangle", value: "rectangular body shape" },
+  { code: "short", title: "Short", value: "short body" },
+  { code: "slim", title: "Slim", value: "slim body" },
+  { code: "tall", title: "Tall", value: "tall body" },
+];
