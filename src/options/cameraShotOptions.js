@@ -19,4 +19,5 @@ export const cameraShotOptions = [
   { code: "three-quarter", title: "Three-Quarter", value: "three-quarter shot" },
   { code: "two-shot", title: "Two Shot", value: "two shot" },
   { code: "wide-shot", title: "Wide Shot", value: "wide shot" },
+  { code: "symmetrical-frame-shot", title: "Symmetrical Frame Shot", value: "symmetrical frame shot" },
 ];
